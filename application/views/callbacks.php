@@ -115,7 +115,9 @@
                 <?php } ?>
             </select>
         </div>
-        <?php if($this->session->userdata("user_type")!="user") { ?>
+        <?php if($this->session->userdata("user_type")!="user" && $this->session->userdata("user_type")!="City_head") {
+
+         ?>
             <div class="col-md-3 form-group">
                 <label for="assign">City:</label>
                 <select  class="form-control"  id="city" name="city" >
@@ -149,6 +151,9 @@
                             
                             case '4':
                                 $role = "Director";
+                                break;
+                            case '6':
+                                $role = "City_head";
                                 break;
                         }
                         ?>
@@ -213,6 +218,7 @@
         </thead> 
         <tbody id="main_body">
             <?php $i= 1;
+           // echo $city_id."this is the city id";
             if(count($result)>0){
             foreach ($result as $data) {
                 $duedate = explode(" ", $data->due_date);

@@ -39,7 +39,7 @@
         <div class="col-md-6 form-group">
             <label for="emp_code">User type:</label>
             <select  class="form-control"  id="select_user" name="select_user" required="required" >
-                <option value="user">User</option>
+                <option value="user">User</option><option value="city_head">City Head</option>
                 <option value="crm">CRM</option>
             </select>
         </div>
@@ -160,7 +160,7 @@
                     <div class="col-md-6 form-group">
                         <label for="emp_code">User type:</label>
                         <select  class="form-control"  id="m_select_user" name="select_user" required="required" >
-                            <option value="user">User</option>
+                            <option value="user">User</option><option value="city_head">City Head</option>
                             <option value="crm">CRM</option>
                         </select>
                     </div>

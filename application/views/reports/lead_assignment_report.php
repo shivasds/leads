@@ -23,9 +23,9 @@
 		<strong>Error!</strong> Email not Sent.
 	</div>
 	<form method="GET" action="<?php echo base_url()?>admin/generate_report">
-		<div class="col-sm-3 form-group">
+		<div class="col-sm-2 form-group">
 			<label for="emp_code">Dept:</label>
-            <select  class="form-control"  id="dept" name="dept" required >
+            <select  class="form-control"  id="dept" name="dept" >
                 <option value="">Select</option>
                 <?php $all_department=$this->common_model->all_active_departments();
                 foreach($all_department as $department){ ?>
@@ -33,7 +33,7 @@
                 <?php }?>              
             </select>
 		</div>
-		<div class="col-sm-3 form-group">
+		<div class="col-sm-2 form-group">
 			<label for="emp_code">City:</label>
             <select  class="form-control"  id="city" name="city" >
                 <option value="">Select</option>
@@ -43,24 +43,42 @@
                 <?php } ?>               
             </select>
 		</div>
-		<div class="col-sm-3 form-group">
-            <button type="submit" id="Generate" class="btn btn-success btn-block">Filter</button>
+		<div class="col-sm-2 form-group">
+			<label for="emp_code">Project:</label>
+            <select  class="form-control"  id="project" name="project" required >
+                <option value="">Select</option>
+                <?php $all_projects=$this->common_model->all_active_projects();
+                foreach($all_projects as $project){ ?>
+                    <option value="<?php echo $project->id; ?>" <?php if($project->id==$dept) echo 'selected'; ?>><?php echo $project->name; ?></option>
+                <?php }?>              
+            </select>
+		</div>
+		<div class="col-sm-2 form-group">
+            <button type="submit" id="Generate" class="btn btn-success btn-block" style="margin-top: 25px; margin-right: 0px;">Filter</button>
         </div>
         <div class="col-sm-3 form-group">
             <button id="email_this_report" class="btn btn-default btn-block">Email this report</button>
         </div>
     </form>
     <br>
+
 	<table class="display" cellspacing="0" width="100%">
 		<thead>
+			
 			<tr>
 				<th>Sl.No</th>
 				<th>Advisor Name</th>
 				<?php foreach ($projectCallbacks as $key => $value) {
 					$name = $this->common_model->get_project_name($key);
 					echo '<th>'.$name.'</th>';
-				} ?>
+				}
+
+				if($project=='')
+				{
+				 ?>
+				
 				<th>Total Calls</th>
+				<?php } ?>
 			</tr>
 		</thead>
 		<tbody>
@@ -79,15 +97,20 @@
 				 			}
 				 			else
 				 				echo '<td>0</td>';
-				 		} ?>
+				 		}
+
+				 		if($project=='')
+				 		{ ?>
 				 		<td><?php echo '<a href="'.base_url().'view_callbacks?report=lead_assignment&advisor='.urlencode($key).'&dept='.urlencode($dept).'&city='.urlencode($city).'&fromDate='.urlencode($fromDate).'&toDate='.urlencode($toDate).'">'.$total.'</a>'; ?></td>
 				 	</tr>
-				<?php $i++; }
+				<?php  }$i++;}
 			} else { ?>
 				<tr>
 					<td colspan="<?php echo count($projectCallbacks)+2; ?>"> No entries </td>
 				</tr>
-			<?php } ?>
+			<?php } 
+$this->session->unset_userdata('report-project');
+			?>
 		</tbody>
 	</table>
 	<br>

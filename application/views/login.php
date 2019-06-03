@@ -123,6 +123,7 @@
                         <option value="2">Manager</option>
                         <option value="3">VP</option>
                         <option value="4">Director</option>
+                        <option value="6">City Head</option>
                     </select>
                 </div>
                 <br />

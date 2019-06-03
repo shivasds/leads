@@ -36,6 +36,7 @@
                 <input type="radio" class="form-control" id="lead_assignment_report" value="lead_assignment" name="reportType" >
             </div>
             <div class="clearfix"></div>
+            <?php if($this->session->userdata('user_type')!='City_head'){ ?>
             <label for = "site_visit_report" class="col-xs-5">Site Visit Done report:</label>
             <div class="col-xs-6">
                 <input type="radio" class="form-control" id="site_visit_report" value="site_visit" name="reportType" >
@@ -66,6 +67,7 @@
             <div class="col-xs-6">
                 <input type="radio" class="form-control" id="face_to_face_report" value="face_to_face" name="reportType" >
             </div>
+        <?php }?>
             <div class="clearfix"></div>
             <label for = "face_to_face_report" class="col-xs-5">Due Report:</label>
             <div class="col-xs-6">

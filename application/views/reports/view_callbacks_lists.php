@@ -49,7 +49,16 @@
         <h1><?php echo $heading; ?></h1>
         <p class="text-center"><?php echo $duration; ?></p>
     </div>
-   
+    <?php  $row['page']= $this->uri->segment(3);
+            $user_id=$this->input->get('userId');
+            $fromDate=$this->input->get('fromDate');
+            $endDate=$this->input->get('endDate');
+
+
+    ?>
+   <a href="<?php echo site_url(); ?>excel/view_callbacks_list/<?php echo $row['page'].'?user_id='.
+                 $user_id.'&fromDate='.$fromDate.'&endDate='.$endDate;
+                ?>" class="btn" >Download</a></td>
 <table id="example" class="table-bordered dt-responsive dataTable no-footer" cellspacing="0" width="100%" >
     <thead>
         <tr id="tableheading">

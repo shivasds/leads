@@ -1,6 +1,7 @@
 <?php 
     defined('BASEPATH') OR exit('No direct script access allowed');
     $this->load->view('inc/header'); 
+   // echo $this->session->userdata('user_type');
 ?>
 
 <style>

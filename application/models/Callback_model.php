@@ -146,7 +146,7 @@ class Callback_model extends MY_Model {
         return $query?true:false;
     }
 
-    function search_callback_count($type,$query,$user="admin"){
+    function search_callback_count($type,$query,$user="admin",$city){
         if($type){
             switch ($type) {
                 case 'name':
@@ -171,12 +171,24 @@ class Callback_model extends MY_Model {
             if(strpos($query, 'status_id=4') === false)
                 $this->db->where("cb.status_id != 4 ", NULL, FALSE);
             if(strpos($query, 'status_id=5') === false)
-                $this->db->where("cb.status_id != 5 ", NULL, FALSE);
+                $thifes->db->where("cb.status_id != 5 ", NULL, FALSE);
             if($query != "")
                 $this->db->where("1".$query, NULL, FALSE);
+
         }   
         if($user == 'manager'){
             $this->db->where("(cb.user_id in(select id from user where reports_to ='".$this->session->userdata('user_id')."') OR cb.user_id = ".$this->session->userdata('user_id').")", NULL, FALSE);
+        }
+      else if($user == 'City_head'){
+          //print_r($this->session->userdata('user_ids'));
+          $ids=array();
+          foreach ($this->session->userdata('user_ids') as $id) {
+             // echo $id->id;
+              $ids[]=$id->id;
+          }
+        $list_id=implode(',', $ids);
+         $this->db->where("(cb.user_id in(".$list_id."))", NULL, FALSE);
+        
         }
         elseif ($user == 'user') {
             $this->db->where("cb.user_id",$this->session->userdata('user_id'));
@@ -186,7 +198,7 @@ class Callback_model extends MY_Model {
         return $this->db->count_all_results();
     }
     function count_search_records($type,$query,$limit=null,$offset=null,$user="admin",$request=null, $report=""){
-    	
+    	$user=$this->session->userdata('user_type');
         $this->db->select('cb.*,p.name as project_name,ls.name as lead_source_name,concat(u.first_name,"",u.last_name) as user_name,b.name as broker_name,s.name as status_name');
         if($type){
             switch ($type) {
@@ -217,11 +229,23 @@ class Callback_model extends MY_Model {
             }
             if($query != "")
                 $this->db->where("1".$query, NULL, FALSE);
+            
         }   
         if($user == 'manager'){
             $this->db->where("(cb.user_id in(select id from user where reports_to ='".$this->session->userdata('user_id')."') OR cb.user_id = ".$this->session->userdata('user_id').")", NULL, FALSE);
         }
-        elseif ($user == 'user') {
+       else if($user == 'City_head'){
+          //print_r($this->session->userdata('user_ids'));
+          $ids=array();
+          foreach ($this->session->userdata('user_ids') as $id) {
+             // echo $id->id;
+              $ids[]=$id->id;
+          }
+        $list_id=implode(',', $ids);
+         $this->db->where("(cb.user_id in(".$list_id."))", NULL, FALSE);
+        
+        }
+        else {
             $this->db->where("cb.user_id",$this->session->userdata('user_id'));
         }
         $this->db->join('project as p','p.id=cb.project_id','left');
@@ -237,29 +261,34 @@ class Callback_model extends MY_Model {
         return $this->db->count_all_results();
     }
     function search_callback($type,$query,$limit=null,$offset=null,$user="admin",$request=null, $report=""){
-
+        $user=$this->session->userdata('user_type');
         $this->db->select('cb.*,p.name as project_name,ls.name as lead_source_name,concat(u.first_name," ",u.last_name) as user_name,b.name as broker_name,s.name as status_name');
         if($type){
             switch ($type) {
                 case 'name':
                     $this->db->where("cb.name LIKE '%".$query."%'", NULL, FALSE);
+
                     break;
 
                 case 'contact':
                     $this->db->where("(cb.contact_no1 LIKE '%".$query."%' OR cb.contact_no2 LIKE '%".$query."%')", NULL, FALSE);
+
                     break;
 
                 case 'email':
                     $this->db->where("(cb.email1 LIKE '%".$query."%' OR cb.email2 LIKE '%".$query."%')", NULL, FALSE);
+
                     break;
 
                 case 'project':
                     $this->db->where("p.name LIKE '%".$query."%'", NULL, FALSE);
+
                     break;
                 
             }
         }
         else{
+
             if($request != "report"){
                 if(strpos($query, 'status_id=4') === false)
                     $this->db->where("cb.status_id != 4 ", NULL, FALSE);
@@ -268,13 +297,30 @@ class Callback_model extends MY_Model {
             }
             if($query != "")
                 $this->db->where("1".$query, NULL, FALSE);
+             
         }   
         if($user == 'manager'){
+
             $this->db->where("(cb.user_id in(select id from user where reports_to ='".$this->session->userdata('user_id')."') OR cb.user_id = ".$this->session->userdata('user_id').")", NULL, FALSE);
         }
+        else if($user == 'City_head'){
+          //print_r($this->session->userdata('user_ids'));
+          $ids=array();
+          foreach ($this->session->userdata('user_ids') as $id) {
+             // echo $id->id;
+              $ids[]=$id->id;
+          }
+        $list_id=implode(',', $ids);
+        //$this->db->where("u.city_id", $this->session->userdata('city_id'));
+         $this->db->where("(cb.user_id in(".$list_id."))", NULL, FALSE);
+       
+        }
+        
         elseif ($user == 'user') {
+
             $this->db->where("cb.user_id",$this->session->userdata('user_id'));
         }
+
         $this->db->join('project as p','p.id=cb.project_id','left');
         $this->db->join('lead_source as ls','ls.id=cb.lead_source_id','left');
         $this->db->join('user as u','u.id=cb.user_id','left');
@@ -291,6 +337,7 @@ class Callback_model extends MY_Model {
         if($offset)
             $this->db->limit($offset, $limit);
         $query=$this->db->get();
+
         return $query?$query->result():array();
     }
 
@@ -350,7 +397,23 @@ class Callback_model extends MY_Model {
         $this->db->where("cb.status_id != 4 ", NULL, FALSE);
         $this->db->where("cb.status_id != 5 ", NULL, FALSE);
         if($user_id)
-            $this->db->where("cb.user_id", $user_id);
+            if($this->session->userdata('user_type')=='City_head')
+            {
+                $ids=array();
+          foreach ($this->session->userdata('user_ids') as $id) {
+             // echo $id->id;
+              $ids[]=$id->id;
+                }
+        $list_id=implode(',', $ids);
+         $this->db->where("(cb.user_id in(".$list_id."))", NULL, FALSE);
+        
+             
+            }
+            else
+            {
+             $this->db->where("cb.user_id", $user_id);   
+            }
+            
         $this->db->join('user as u','u.id=cb.user_id','left');
         $this->db->from('callback as cb');
 
@@ -564,6 +627,15 @@ class Callback_model extends MY_Model {
             $this->db->where("c.dept_id", $dept);
         if(($this->session->userdata('user_type')=="manager")){
             $this->db->where("(c.user_id in(select id from user where reports_to ='".$this->session->userdata('user_id')."') OR c.user_id = ".$this->session->userdata('user_id').")", NULL, FALSE);
+        }
+        if(($this->session->userdata('user_type')=="City_head")){
+            $ids=array();
+          foreach ($this->session->userdata('user_ids') as $id) {
+             // echo $id->id;
+              $ids[]=$id->id;
+          }
+        $list_id=implode(',', $ids);
+            $this->db->where("c.user_id in(".$list_id.")", NULL, FALSE);
         }
         if($city)
             $this->db->where("u.city_id", $city);

@@ -25,7 +25,7 @@
 	<form method="GET" action="<?php echo base_url()?>admin/generate_report">
 		<div class="col-sm-3 form-group">
 			<label for="emp_code">Dept:</label>
-            <select  class="form-control"  id="dept" name="dept" required >
+            <select  class="form-control"  id="dept" name="dept"  >
                 <option value="">Select</option>
                 <?php $all_department=$this->common_model->all_active_departments();
                 foreach($all_department as $department){ ?>

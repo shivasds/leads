@@ -51,18 +51,18 @@
         </div>
 
         <div class="col-md-6 form-group">
-            <label for="emp_code">Director:</label>
+            <label for="emp_code">VP:</label>
             <select  class="form-control"  id="director" name="director" required="required" >
                 <option value="">Select</option>
-                <?php $all_director=$this->user_model->all_users("(type=4 AND active=1)");
-                foreach($all_director as $director){ ?>
-                    <option value="<?php echo $director->id; ?>"><?php echo $director->first_name." ".$director->last_name; ?></option>
+                <?php $all_vps=$this->user_model->all_users("(type=3 AND active=1)");
+                foreach($all_vps as $vp){ ?>
+                    <option value="<?php echo $vp->id; ?>"><?php echo $vp->first_name." ".$vp->last_name; ?></option>
                 <?php }?>
             </select>
         </div>
 
         <div class="col-sm-12 form-group">
-            <button type="submit" style="margin-top:25px;" id="add_vp" class="btn btn-success btn-block" disabled>Add VP</button>
+            <button type="submit" style="margin-top:25px;" id="add_manager" class="btn btn-success btn-block" disabled>Add City Head</button>
         </div>
     </form>
 
@@ -70,8 +70,8 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>VP Name</th>
-                <th>VP Email</th>
+                <th>Manager Name</th>
+                <th>Manager Email</th>
                 <th>City</th>
                 <th>Department</th>
                 <th>Emp Code</th>
@@ -84,22 +84,22 @@
             </tr>
         </thead> 
         <tbody>
-            <?php if(isset($all_vps) && $all_vps){
-                foreach($all_vps as $vp){?>
+            <?php if(isset($all_city_heads) && $all_city_heads){
+                foreach($all_city_heads as $city_head){?>
                     <tr>
-                        <td><?php echo $vp->id; ?></td>
-                        <td><?php echo $vp->first_name." ".$vp->last_name; ?></td>
-                        <td><?php echo $vp->email; ?></td>
-                        <td><?php echo $vp->city_name; ?></td>
-                        <td><?php echo $vp->department_name; ?></td>
-                        <td><?php echo $vp->emp_code; ?></td>
-                        <td><?php echo $vp->reports_to; ?></td>
-                        <td><?php echo $vp->date_added; ?></td>
-                        <td align="middle"><button type="button" id="b1<?php echo $vp->id; ?>" class="btn <?php echo $vp->active?'btn-info':'btn-danger'; ?>" onclick="change_state(<?php echo $vp->id; ?>)"><span id="stateus_sp_<?php echo $vp->id; ?>"><?php echo $vp->active?'Active':'Inactive'; ?></span></button></td>
-                        <td align="middle"><button type="button" class="btn btn-info" onclick="edit_user(<?php echo $vp->id; ?>)" data-toggle="modal" data-target="#modal_edit">Edit</button></td>
-                        <td align="middle"><button type="button" class="btn btn-info" onclick="reset_password(<?php echo $vp->id; ?>)">Reset Password</button></td>
+                        <td><?php echo $city_head->id; ?></td>
+                        <td><?php echo $city_head->first_name." ".$city_head->last_name; ?></td>
+                        <td><?php echo $city_head->email; ?></td>
+                        <td><?php echo $city_head->city_name; ?></td>
+                        <td><?php echo $city_head->department_name; ?></td>
+                        <td><?php echo $city_head->emp_code; ?></td>
+                        <td><?php echo $city_head->reports_to; ?></td>
+                        <td><?php echo $city_head->date_added; ?></td>
+                        <td align="middle"><button type="button" id="b1<?php echo $city_head->id; ?>" class="btn <?php echo $city_head->active?'btn-info':'btn-danger'; ?>" onclick="change_state(<?php echo $city_head->id; ?>)"><span id="stateus_sp_<?php echo $city_head->id; ?>"><?php echo $city_head->active?'Active':'Inactive'; ?></span></button></td>
+                        <td align="middle"><button type="button" class="btn btn-info" onclick="edit_user(<?php echo $city_head->id; ?>)" data-toggle="modal" data-target="#modal_edit">Edit</button></td>
+                        <td align="middle"><button type="button" class="btn btn-info" onclick="reset_password(<?php echo $city_head->id; ?>)">Reset Password</button></td>
                         <td align="middle">
-                            <button type="button" class="btn btn-info" onclick="permissionModal(<?php echo $vp->id; ?>)" data-toggle="modal" data-target="#modalPermission">Permission</button>
+                            <button type="button" class="btn btn-info" onclick="permissionModal(<?php echo $city_head->id; ?>)" data-toggle="modal" data-target="#modalPermission">Permission</button>
                         </td>
                     </tr>
                 <?php }
@@ -140,12 +140,12 @@
                     </div>
 
                     <div class="col-md-6 form-group">
-                        <label for="emp_code">Director:</label>
-                        <select  class="form-control"  id="m_director" name="manager" required="required" >
+                        <label for="emp_code">VP:</label>
+                        <select  class="form-control"  id="m_vp" name="manager" required="required" >
                             <option value="">Select</option>
-                            <?php $all_director=$this->user_model->all_users("(type=4 AND active=1)");
-                            foreach($all_director as $director){ ?>
-                                <option value="<?php echo $director->id; ?>"><?php echo $director->first_name." ".$director->last_name; ?></option>
+                            <?php $all_vps=$this->user_model->all_users("(type=3 AND active=1)");
+                            foreach($all_vps as $vp){ ?>
+                                <option value="<?php echo $vp->id; ?>"><?php echo $vp->first_name." ".$vp->last_name; ?></option>
                             <?php }?>
                         </select>
                     </div>
@@ -190,6 +190,8 @@
         </div>
     </div>
 </div>
+
+
 <script>
     function change_state(id){
         $(".se-pre-con").show();
@@ -215,7 +217,7 @@
     }
 
     function code_check(name){
-        $('#add_vp').prop('disabled', true);
+        $('#add_manager').prop('disabled', true);
         $(".se-pre-con").show();
         $.ajax({
             type:"POST",
@@ -229,7 +231,7 @@
                     $('#emp_code').val('');
                 }
                 else
-                    $('#add_vp').prop('disabled', false);
+                    $('#add_manager').prop('disabled', false);
                 $(".se-pre-con").hide("slow");
             }
         });
@@ -259,7 +261,7 @@
                 $("#m_first_name").val(first_name);
                 $("#m_last_name").val(last_name);
                 $("#m_email").val(email);
-                $("#m_director").val(reports_to);
+                $("#m_vp").val(reports_to);
                 $("#m_dept_id").val(dept_id);
                 $("#m_city_id").val(city_id);
                 $("#m_select_user").val(select_user);
@@ -283,11 +285,11 @@
         var first_name=$("#m_first_name").val();
         var last_name=$("#m_last_name").val();
         var email=$("#m_email").val();
-        var reports_to=$("#m_director").val();
+        var reports_to=$("#m_vp").val();
         var dept_id=$("#m_dept_id").val();
         var city_id=$("#m_city_id").val();
         var select_user=$("#m_select_user").val();
-        
+
         var id=$("#hid").val(); 
             
         $.ajax({
@@ -311,4 +313,5 @@
             }
         });
     }
+    
 </script>

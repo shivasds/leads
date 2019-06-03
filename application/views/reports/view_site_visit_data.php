@@ -10,6 +10,19 @@
    
 <table id="example" class="table-bordered dt-responsive dataTable no-footer" cellspacing="0" width="100%" >
     <thead>
+        <?php 
+        $row['page']= $this->uri->segment(3);
+        $userid=$this->input->post_get('userid');
+        $fromDate=$this->input->post_get('fromDate');
+        $endDate=$this->input->post_get('endDate');
+        $reportType=$this->input->post_get('reportType');
+
+
+        ?>
+
+        <a  href="<?php echo site_url(); ?>ExcelReportController/<?php echo $row['page'].'?userid='.
+                 $userid.'&fromDate='.$fromDate.'&endDate='.$endDate.'&reportType='.$reportType
+                ?>" class="btn btn-default">download</a>
         <tr id="tableheading">
             <th>No</th>
             <th>Contact Name</th> 

@@ -25,7 +25,41 @@
 			$data['name'] = "index";
 			$this->load->view('admin/home',$data);
 		}
+		public function manage_city_head()
+		{
+			$data['name'] ="admin";
+			$data['heading'] ="Manage City Head";
+			if($this->input->post())
+			{
+				$first_name=$this->input->post('first_name');
+				$last_name=$this->input->post('last_name');
+				$emp_code=$this->input->post('emp_code');
+				$email=$this->input->post('email');
+				$department=$this->input->post('department');
+				$city=$this->input->post('city');
+				$director=$this->input->post('director');
+				$type=6;
+				$savedata=array(
+					'first_name'=>$first_name,
+					'last_name'=>$last_name,
 
+					'type'=>$type,
+					'emp_code'=>$emp_code,
+					'email'=>$email,
+					'dept_id'=>$department,
+					'city_id'=>$city,
+					'reports_to'=>$director,
+					'password'=>md5($emp_code),
+					'loginid'=>$emp_code,
+					'date_added'=>date('Y-m-d H:i:s')
+				);
+				$this->user_model->add_user($savedata);
+					
+			}
+			$data['all_city_heads'] = $this->user_model->all_city_heads();
+				$this->load->view('admin/manage_city_head',$data);
+			
+		}
 		public function manage_users() {
 			$data['name'] ="admin";
 			$data['heading'] ="Manage User";
@@ -1022,26 +1056,34 @@
 					$this->session->set_userdata("report-type",$reportType);
 					$dept = '';
 					$city = '';
+					$project=$this->input->get('project');
 					$this->session->set_userdata("fromTime",$fromTime);
 					$this->session->set_userdata("toTime",$toTime);
 				}
 				else{
 					$dept=$this->input->get('dept');
 					$city=$this->input->get('city');
+					$project=$this->input->get('project');
 					$this->session->set_userdata("report-dept",$dept);
 					$this->session->set_userdata("report-city",$city);
+					$this->session->set_userdata("report-project",$project);
 					$fromDate = $this->session->userdata('report-fromDate');
 					$toDate = $this->session->userdata('report-toDate');
 					$reportType = $this->session->userdata('report-type');
 				}
 				$data['dept'] = $dept;
 				$data['city'] = $city;
+				$data['project'] = $project;
 				$data['fromDate'] = $fromDate;
 				$data['toDate'] = $toDate;
 				$data['reportType'] = $reportType;
 
 				if($reportType != 'dailyCallback')
-					$report_data = $this->generate_report_data($fromDate, $toDate, $dept, $city, $reportType);
+				{
+					$report_data = $this->generate_report_data($fromDate, $toDate, $dept, $city, $reportType,$project);
+
+				}
+				
 				else
 					$report_data = $this->generate_callback_report_data($fromDate, $toDate, $dept, $city, $reportType);
 
@@ -1056,8 +1098,8 @@
 				redirect(base_url().'admin/reports');
 		}
 
-		public function generate_report_data($fromDate, $toDate, $dept, $city, $reportType){
-			$callbacks = $this->callback_model->generate_report_data($fromDate,$toDate,$dept,$city, $reportType);
+		public function generate_report_data($fromDate, $toDate, $dept, $city, $reportType,$project){
+			$callbacks = $this->callback_model->generate_report_data($fromDate,$toDate,$dept,$city, $reportType,$project);
 			$return = array();
 			switch ($reportType) {
 				case 'lead':
@@ -1088,10 +1130,20 @@
 
 				case 'lead_assignment':
 					$this->session->set_userdata("report-heading","Total Lead Assignment Breakup Report");
+					if($this->session->userdata('report-project')=='')
+					{
 					$projects = $this->common_model->all_projects();
 					$projectCallbacks = array();
 					foreach ($projects as $key => $value) {
 						$projectCallbacks[$value->id] = array();
+					}
+					}
+					else
+					{
+						$project_id =$this->session->userdata('report-project');
+						
+						$projectCallbacks[$project_id] = array();
+					
 					}
 					$advisors = array();
 					foreach ($callbacks as $callback) {
@@ -1208,6 +1260,7 @@
 					//$advisors = array();
 					$facetofaces = $this->callback_model->generate_sitevisit_data($dept,$city,$fromDate,$toDate,$type=3);
 					foreach ($facetofaces as $key => $value) {
+						echo $value->emp_code;
 						$idsArry[]	= $value->emp_code;
 					}
 
@@ -1417,8 +1470,11 @@
 					case 'admin':
 						$uType = 5; 
 						break;
+					case 'City_head':
+						$uType = 6; 
+						break;
 					default:
-						$uType = 1; 
+						$uType = 0; 
 				}
 				$data["type"] 			= $uType;
 				$data["select_user"] 	= $select_user;

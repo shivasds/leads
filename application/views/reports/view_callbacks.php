@@ -52,7 +52,11 @@
     </div>
     <div class="row">
         <div class="col-sm-12 nopaddin">
-            <?php if($fromDate){ ?>
+            <?php 
+//echo $this->session->userdata('user_type');
+
+
+            if($fromDate){ ?>
                 <div class="col-sm-4">
                     <h4>From Date: &emsp;<?php echo $fromDate; ?></h4>
                 </div>
@@ -91,25 +95,50 @@
                 <div class="col-sm-4">
                     <h4>Status: &emsp;<?php echo $this->common_model->get_status_name($status); ?></h4>
                 </div>
-            <?php } 
-
-            ?>
+            <?php } ?>
         </div>
     </div>
     <div class="clearfix"></div><br>
     <table id="example" class="table table-striped table-bordered dt-responsive" cellspacing="0" width="100%" >
-        <?php $row['page']= $this->uri->segment(2);
-        if(is_null($row['page']))
-            $row['page']=1;
-        $report=$this->input->get('report');
-        $dept=$this->input->get('city');
-        $fromDate=$this->input->get('fromDate');
-        $toDate=$this->input->get('toDate');
-        
-        ?>
         <thead>
             <tr>
-                <td><a href="<?php echo site_url(); ?>excel/view_callback/<?php echo $row['page'].'/'.$this->input->get('advisor').'?report='. $report.'&fromDate='.$fromDate.'&toDate='.$toDate;?>" class="btn" >Download</a></td>
+                <?php $row['page']= $this->uri->segment(2);
+              //  $report=$this->input->get('report');
+                //echo $advisor;
+                if($this->session->userdata('user_type')!='user')
+                {
+                if(!empty($advisor))
+                  {
+                ?>
+
+                <td><a href="<?php echo site_url(); ?>excel/view_callback/<?php echo $row['page'].'?report='.
+                 $report.'&advisor='.$advisor.'&fromDate='.$fromDate.'&toDate='.$toDate.'&project='.$project;
+                ?>" class="btn" >Download</a></td>
+            <?php }
+else if(!empty($project))
+{
+            ?>
+                <td><a href="<?php echo site_url(); ?>excel/view_callback/<?php echo $row['page'].'?report='.
+                 $report.'&project='.$project.'&fromDate='.$fromDate.'&toDate='.$toDate;
+                ?>" class="btn" >Download</a></td>
+            <?php }
+            else if(!empty($lead_source))
+            {
+             ?>
+             <td><a href="<?php echo site_url(); ?>excel/view_callback/<?php echo $row['page'].'?report='.
+                 $report.'&lead_source='.$lead_source.'&fromDate='.$fromDate.'&toDate='.$toDate;
+                ?>" class="btn" >Download</a></td>
+             <?php }
+            else if(!empty($report))
+            {
+             ?>
+            <td><a href="<?php echo site_url(); ?>excel/view_callback/<?php echo $row['page'].'?report='.
+                 $report.'&advisor='.$advisor.'&fromDate='.$fromDate.'&toDate='.$toDate;
+                ?>" class="btn" >Download</a></td>
+            <?php }
+        }
+            ?>            
+            </tr>
             </tr>
             <tr>
                 <th>No</th>
@@ -128,7 +157,7 @@
                     <?php } ?>
                     <th>Project</th> 
                     <th>Comment</th>
-                    <th>Lead Source</th>
+                    <th style="word-wrap:break-word;" width="20%" >Lead Source</th>
                     <th>Sub Source</th>
                 <?php }else {?>
                     <th>Contact Name</th> 
@@ -149,10 +178,9 @@
                 <?php } ?>
             </tr>
         </thead> 
-
         <tbody id="main_body">
             <?php $i= 1;
-
+//echo count($result);
             if(count($result)>0){
             foreach ($result as $data) {
                 $duedate = explode(" ", $data->due_date);

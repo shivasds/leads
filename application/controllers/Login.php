@@ -46,6 +46,10 @@ class Login extends CI_Controller {
                         case 4:
                             $user_type = 'director';
                             break;
+                        case 6:
+                            $user_type='City_head';
+                            break;
+                    
                         
                     }
 

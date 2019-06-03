@@ -5,6 +5,45 @@
     else
         $this->load->view('inc/header');
     setlocale(LC_MONETARY, 'en_IN');
+function formatcurrency($floatcurr,$curr = 'INR')
+{
+
+$currencies = array('INR' => array('&#2352;',2,'.',',',0));
+        
+        //rupees weird format
+        if ($curr == "INR")
+            $number = formatinr($floatcurr);
+        if ($currencies[$curr][0] === NULL)
+            $number.= ' '.$curr;
+        elseif ($currencies[$curr][4]===1)
+            $number.= $currencies[$curr][0];
+        //normally in front
+        else
+            $number = $currencies[$curr][0].$number;
+        return $number;
+}
+   
+function formatinr($input)
+{
+        //CUSTOM FUNCTION TO GENERATE ##,##,###.##
+        $dec = "";
+        $pos = strpos($input, ".");
+        if ($pos === false){
+            //no decimals   
+        } else {
+            //decimals
+            $dec = substr(round(substr($input,$pos),2),1);
+            $input = substr($input,0,$pos);
+        }
+        $num = substr($input,-3); //get the last 3 digits
+        $input = substr($input,0, -3); //omit the last 3 digits already stored in $num
+        while(strlen($input) > 0) //loop the process - further get digits 2 by 2
+        {
+            $num = substr($input,-2).",".$num;
+            $input = substr($input,0,-2);
+        }
+        return $num . $dec;
+}
 ?>
 <style type="text/css">
 	.display td {
@@ -27,7 +66,7 @@
 		<form method="GET" action="<?php echo base_url()?>admin/generate_report">
 			<div class="col-sm-3 form-group">
 				<label for="emp_code">Dept:</label>
-	            <select  class="form-control"  id="dept" name="dept" required >
+	            <select  class="form-control"  id="dept" name="dept">
 	                <option value="">Select</option>
 	                <?php $all_department=$this->common_model->all_active_departments();
 	                foreach($all_department as $department){ ?>
@@ -93,20 +132,20 @@
 					 		<td><?php echo $value->leadid; ?></td>
 					 		<td><?php echo $value->date_added; ?></td>
 					 		<td><?php echo $value->booking_month; ?></td>
-					 		<td><?php echo money_format('%!i', $value->commission); ?></td>
-					 		<td><?php echo money_format('%!i', $value->gross_revenue); ?></td>
-					 		<td><?php echo money_format('%!i', $value->cash_back); ?></td>
-					 		<td><?php echo money_format('%!i', $value->sub_broker_amo); ?></td>
-					 		<td><strong><?php echo money_format('%!i', $value->net_revenue); ?></strong></td>
+					 		<td><?php echo formatcurrency($value->commission); ?></td>
+					 		<td><?php echo formatcurrency($value->gross_revenue); ?></td>
+					 		<td><?php echo formatcurrency($value->cash_back); ?></td>
+					 		<td><?php echo formatcurrency($value->sub_broker_amo); ?></td>
+					 		<td><strong><?php echo formatcurrency($value->net_revenue); ?></strong></td>
 					 		
 					 	</tr>
 					<?php $i++; } ?>
 					<tr style="color: blue;">
 						<td colspan="8"><strong>Total</strong></td>
-						<td><strong><?php echo money_format('%!i', $total_gr); ?></strong></td>
-						<td><strong><?php echo money_format('%!i', $total_cb); ?></strong></td>
-						<td><strong><?php echo money_format('%!i', $total_sba); ?></strong></td>
-						<td><strong><?php echo money_format('%!i', $total_nr); ?></strong></td>
+						<td><strong><?php echo formatcurrency( $total_gr); ?></strong></td>
+						<td><strong><?php echo formatcurrency( $total_cb); ?></strong></td>
+						<td><strong><?php echo formatcurrency($total_sba); ?></strong></td>
+						<td><strong><?php echo formatcurrency( $total_nr); ?></strong></td>
 					</tr>
 				<?php } else { ?>
 					<tr>

@@ -1,9 +1,10 @@
 <?php 
     defined('BASEPATH') OR exit('No direct script access allowed');
     $this->load->view('inc/header'); 
-    
+
 if(!$this->session->userdata('permissions') && $this->session->userdata('permissions')=='' ) {
     ?>
+
     <style type="text/css">
     .alrtMsg{padding-top: 50px;}
     .alrtMsg i {
@@ -241,7 +242,9 @@ else
                 </div>
             </div>
         </div>
-    <?php } elseif ($this->session->userdata('user_type')=="manager") { ?>
+    <?php } elseif ($this->session->userdata('user_type')=="manager" || $this->session->userdata('user_type')=="City head" ) { 
+
+        ?>
         <div class="container"> 
             <div class="top-mg dash-wd">
                 <div class="col-md-6">

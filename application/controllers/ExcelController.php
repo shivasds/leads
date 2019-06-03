@@ -76,6 +76,7 @@ class ExcelController extends CI_Controller {
 			}	
 			//echo $where;		
 		}
+		
 		else{
 			if($this->session->userdata("department"))
 				$where.=" AND cb.dept_id=".trim($this->session->userdata("department"));
@@ -193,6 +194,7 @@ $objWriter->save('php://output');
     function view_callback()
     {
     	
+    
         $user_id=$this->input->post_get('advisor');
         $report = $this->input->post_get('report');
         $dept = $this->input->post_get('dept');
@@ -215,11 +217,7 @@ $objWriter->save('php://output');
         $for = $this->input->post_get('for');
         $access = $this->input->post_get('access');
         $important = $this->input->post_get('important');
-        if($user_id){
-            $advisor = $user_id;
-            $access = "read_write";
-            $important = 1;
-        }
+        
         if($access)
             $data['access'] = $access;
         if($for == null)
@@ -317,26 +315,24 @@ $objWriter->save('php://output');
 
         //------- pagination ------
         $rowCount               = $this->callback_model->count_search_records(null,$where,null,null, null, $for,$report);
-        $totalRecords  = $rowCount;
- $this->load->library('excel'); 
      
-        $page = $this->uri->segment(2);
-        $offset = !$page ? 0 : $page;
+       $page = $this->uri->segment(3);
+        	$startpage =$page;
+        	if(empty($startpage)==true)
+        	$startpage=1;
+		 $this->load->library('excel'); 
+		
+		        $offset = !$page ? 0 : $page;
         //------ End --------------
 
         $data = $this->callback_model->search_callback(null,$where,$offset,VIEW_PER_PAGE, null, $for,$report);
 
-        //$data['result'] = $this->callback_model->search_callback(null,$where,null,null,null,$for,$report);
-        $data['report'] = $report;
-        $data['dept'] = $dept;
-        $data['city'] = $city;
-        $data['fromDate'] = $fromDate;
-        $data['toDate'] = $toDate;
-        $data['advisor'] = $advisor;
-        $data['project'] = $project;
-        $data['lead_source'] = $lead_source;
-        $data['status'] = $status;
-		        //print_r($data);
+        //------- pagination ------
+        $rowCount = $this->callback_model->count_search_records(null,$where,null,null, null, $for,$report);
+        $totalRecords  = $rowCount;
+ $this->load->library('excel'); 
+   
+		  
 
 		$objPHPExcel = new PHPExcel();
 		$objPHPExcel->setActiveSheetIndex(0);
@@ -361,15 +357,15 @@ $objWriter->save('php://output');
 		        foreach ($data as $resultdata) {
 		            
       			 $objPHPExcel->getActiveSheet()->SetCellValue('A' . $rowC, $i);
-		   	   $objPHPExcel->getActiveSheet()->SetCellValue('B' . $rowC, $resultdata->name);
-		    	$objPHPExcel->getActiveSheet()->SetCellValue('C' . $rowC, $resultdata->date_added);
-		      $objPHPExcel->getActiveSheet()->SetCellValue('D' . $rowC, $resultdata->last_update);
-		      $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowC, $resultdata->due_date);
-		      $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowC, $resultdata->status_name);
-		      $objPHPExcel->getActiveSheet()->SetCellValue('G' . $rowC, $resultdata->project_name);
-		      $objPHPExcel->getActiveSheet()->SetCellValue('H' . $rowC, $resultdata->notes);
-		      $objPHPExcel->getActiveSheet()->SetCellValue('I' . $rowC, $resultdata->lead_source_name);
-		      $objPHPExcel->getActiveSheet()->SetCellValue('J' . $rowC, $resultdata->broker_name);
+		   	   $objPHPExcel->getActiveSheet()->SetCellValue('B' . $rowC,  $resultdata->name);
+		    	$objPHPExcel->getActiveSheet()->SetCellValue('C' . $rowC,  $resultdata->date_added);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('D' . $rowC,  $resultdata->last_update);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowC,  $resultdata->due_date);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowC,  $resultdata->status_name);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('G' . $rowC,  $resultdata->project_name);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('H' . $rowC,  $resultdata->notes);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('I' . $rowC,  $resultdata->lead_source_name);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('J' . $rowC,  $resultdata->broker_name);
 		      $i++;
 		 $rowC++; } }
 
@@ -385,9 +381,77 @@ header('Content-Disposition: attachment; filename="' . $fileName . '"');
 $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
 // Write the Excel file to filename some_excel_file.xlsx in the current directory
 $objWriter->save('php://output'); 
- 
 	
     }
-    
+    function view_callbacks_list()
+    {
+    		$this->load->model('user_model');
+    		$usrId 		= $this->input->get('user_id');
+			$fromDate 	= $this->input->get('fromDate');
+			$toDate 	= $this->input->get('endDate');
+			if($usrId && $fromDate && $toDate) {
+				$data['name'] = "reports";
+				$advisorData = $this->user_model->get_user_data($usrId);
+				$data['heading']  = "Callback report for ".$advisorData['first_name']." ".$advisorData['last_name'];
+				$data['duration'] = "<strong>From</strong> <em>".$fromDate."</em> <strong>To</strong> <em>".$toDate."</em>";
+				
+				$clause = "ct.userId =".$usrId." AND ct.entryDate BETWEEN '".$fromDate."' AND '".$toDate."'";
+				
+
+				//------- pagination ------
+				$rowCount 				= $this->callback_model->countCallbackLists($clause);
+					
+				$page = $this->uri->segment(3);
+				$startpage =$page;
+        		if(empty($startpage)==true)
+        		$startpage=1;
+				$this->load->library('excel'); 
+		        $offset = !$page ? 0 : $page;
+				//------ End --------------
+				$data= $this->callback_model->getCallbackLists($clause, $offset, VIEW_PER_PAGE);
+				//print_r($data);
+			 	$objPHPExcel = new PHPExcel();
+				$objPHPExcel->setActiveSheetIndex(0);
+				$objPHPExcel->getActiveSheet()->SetCellValue('A1', 'No');
+				$objPHPExcel->getActiveSheet()->SetCellValue('B1', 'Contact Name');
+				$objPHPExcel->getActiveSheet()->SetCellValue('C1', 'Contact No');
+				$objPHPExcel->getActiveSheet()->SetCellValue('D1', 'Email');
+				$objPHPExcel->getActiveSheet()->SetCellValue('E1', 'Project'); 
+				$objPHPExcel->getActiveSheet()->SetCellValue('F1', 'Lead Source');  
+
+				$rowC = 2;
+		 		  $i= 1;
+		        if(count($data)>0){
+		        foreach ($data as $resultdata) {
+		            
+      			 $objPHPExcel->getActiveSheet()->SetCellValue('A' . $rowC, $i);
+		   	   $objPHPExcel->getActiveSheet()->SetCellValue('B' . $rowC,  $resultdata['name']);
+		    	$objPHPExcel->getActiveSheet()->SetCellValue('C' . $rowC,  $resultdata['contact_no1']);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('D' . $rowC,  $resultdata['email1']);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('E' . $rowC,  $resultdata['projectName']);
+		      $objPHPExcel->getActiveSheet()->SetCellValue('F' . $rowC,  $resultdata['leadName']);
+		     $i++;
+		 $rowC++; } }
+
+			$topage=$page+count($data);
+	 			$fileName ='callbacks '.$startpage.' to '.$topage.'.xlsx';
+		 	$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+	       $objWriter->save($fileName);
+			// download file
+	header('Content-type: application/xls/vnd.ms-excel');
+	header('Content-Disposition: attachment; filename="' . $fileName . '"');
+	// Instantiate a Writer to create an OfficeOpenXML Excel .xlsx file
+// Write the Excel file to filename some_excel_file.xlsx in the current directory
+	$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+// Write the Excel file to filename some_excel_file.xlsx in the current directory
+	$objWriter->save('php://output'); 
+
+	
+
+
+
+    }
+}
+
 }
 ?>

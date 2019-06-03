@@ -51,6 +51,7 @@ class Dashboard extends CI_Controller {
 		error_reporting(0);
         $data['name'] = "index";
         $data['user_id'] = $this->session->userdata('user_id');
+       
         if ($this->session->userdata('user_type') == 'user') {
             $data['imp_callbacks'] = $this->callback_model->fetch_important_callbacks($data['user_id']);
             $data['today_callback_count'] = $this->callback_model->fetch_callback_count($data['user_id'],'today');
@@ -89,6 +90,37 @@ class Dashboard extends CI_Controller {
             $data['close_leads_count'] = $this->callback_model->fetch_leads_count($data['user_id'],'close');
             $data['total_revenue'] = $this->callback_model->fetch_total_revenue($data['user_id']);
             $data['total_team_revenue'] = $this->callback_model->fetch_total_revenue($data['user_id'],True);
+            $data['lead_source_report'] = $this->callback_model->get_lead_source_report($data['user_id']);
+            $data['call_reports'] = $this->callback_model->get_call_reports($data['user_id']);
+            $data['incentive_slabs'] = $this->callback_model->fetch_employee_incentive_slabs();
+            $data['target'] = $this->callback_model->get_target($data['user_id'],date("m/Y"));
+            // echo $this->db->last_query();exit;
+
+            $fetchData = $this->callback_model->get_siteVisitDataByUserId($data['user_id']);            
+            $prArry = array();
+            $i = 1;
+            foreach ($fetchData as $key => $value) {
+                $prArry[$value['id']][$key] = $value['id'];
+                $prArry[$value['id']][$key] = $value['projectName'];
+            }
+            $data['site_visit_projects'] = $prArry;
+            $data['site_visit_data'] = $fetchData;
+        }
+        elseif ($this->session->userdata('user_type') == 'City_head'){
+            $user_id=$this->session->userdata('user_id');
+            $city_id=$this->user_model->get_city_id($user_id);
+            $data['city_id']=$city_id[0]->city_id;
+            $this->session->set_userdata('city_id',$data['city_id']);
+            $data['user_ids']=$this->user_model->get_city_user_ids($city_id[0]->city_id);
+            $this->session->set_userdata('user_ids',$data['user_ids']);
+            $data['imp_callbacks'] = $this->callback_model->fetch_important_callbacks($data['user_id']);
+            $data['team_members'] = $this->user_model->get_team_members($data['user_id']);
+            $data['total_team_members'] = $this->user_model->get_team_members_count($data['user_id']); 
+            $data['total_calls'] = $this->callback_model->get_total_team_calls($data['user_id']);
+            $data['total_callback_count'] = $this->callback_model->fetch_callback_count($data['user_id']);
+            $data['total_active_callback_count'] = $this->callback_model->fetch_callback_count($data['user_id'],'all',"cb.status_id!=4 AND cb.status_id!=5");
+            $data['close_leads_count'] = $this->callback_model->fetch_leads_count($data['user_id'],'close');
+          
             $data['lead_source_report'] = $this->callback_model->get_lead_source_report($data['user_id']);
             $data['call_reports'] = $this->callback_model->get_call_reports($data['user_id']);
             $data['incentive_slabs'] = $this->callback_model->fetch_employee_incentive_slabs();
@@ -224,8 +256,8 @@ class Dashboard extends CI_Controller {
                 $where.=" AND cb.broker_id=".trim($this->session->userdata("sub_broker"));
             if($this->session->userdata("status"))
                 $where.=" AND cb.status_id=".trim($this->session->userdata("status"));
-            if($this->session->userdata("city"))
-                $where.=" AND u.city_id=".trim($this->session->userdata("city"));
+            if($this->session->userdata("city_id"))
+                $where.=" AND u.city_id=".trim($this->session->userdata("city_id"));
             if($this->session->userdata("advisor"))
                 $where.=" AND cb.user_id=".trim($this->session->userdata("advisor"));
             if($this->session->userdata("self")){
@@ -531,7 +563,9 @@ class Dashboard extends CI_Controller {
             $query = $this->session->userdata("query");
         }
         if($type){
+            
             $data['result'] = $this->callback_model->search_callback($type,$query,false,false,$this->session->userdata("user_type"));
+        
         }
         else
             $data['result'] = false;
@@ -932,7 +966,7 @@ class Dashboard extends CI_Controller {
         $offset = !$page ? 0 : $page;
         //------ End --------------
 
-        $data['result'] = $this->callback_model->search_callback(null,$where,$offset,VIEW_PER_PAGE, null, $for,$report);
+        $data['result'] = $this->callback_model->search_callback(null,$where,$offset,VIEW_PER_PAGE, $this->session->userdata('user_type'), $for,$report);
 
         //$data['result'] = $this->callback_model->search_callback(null,$where,null,null,null,$for,$report);
         $data['report'] = $report;

@@ -40,6 +40,7 @@
             <label for="emp_code">User type:</label>
             <select  class="form-control"  id="select_user" name="select_user" required="required" >
                 <option value="user">User</option>
+                <option value="City_head">City Head</option>
                 <option value="crm">CRM</option>
             </select>
         </div>
@@ -161,6 +162,7 @@
                         <label for="emp_code">User type:</label>
                         <select  class="form-control"  id="m_select_user" name="select_user" required="required" >
                             <option value="user">User</option>
+                            <option value="City_head">City Head</option>
                             <option value="crm">CRM</option>
                             <option value="manager">Manager</option>
                             <option value="vp">VP</option>

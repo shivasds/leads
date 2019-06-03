@@ -167,6 +167,25 @@ class User_model extends CI_Model {
             $team .= $value->id.",";
         return $team;
     }
+    public function get_city_id($id)
+    {
+            $this->db->select('city_id');
+            $this->db->from('user');
+            $this->db->where('id',$id);
+            $result= $this->db->get()->result();
+          
+        return $result;
+    }
+    public function get_city_user_ids($id)
+    {
+            $this->db->select('id');
+            $this->db->from('user');
+            $this->db->where('city_id',$id);
+            $result= $this->db->get()->result();
+          
+             return $result;
+
+    }
 
     /*function get_vp_director_admin_emails(){
         $users = $this->db->select('email')
@@ -245,5 +264,17 @@ class User_model extends CI_Model {
             ->where('active', 1)
             ->order_by('last_login','DESC');
         return $this->db->get()->result();
+    }
+    public function all_city_heads()
+    {
+        $this->db->select('u1.*,department.name as department_name,city.name as city_name,concat(u2.first_name," ",u2.last_name) as reports_to');
+        $this->db->from('user as u1');
+        $this->db->join('department','department.id=u1.dept_id','LEFT');
+        $this->db->join('city','city.id=u1.city_id','LEFT');
+        $this->db->join('user as u2','u2.id=u1.reports_to','LEFT');
+        $this->db->order_by('u1.id','desc');
+        $this->db->where('u1.type','6');
+        $query=$this->db->get();
+        return $query->result();
     }
 }
