@@ -262,12 +262,14 @@ class Callback_model extends MY_Model {
     }
     function search_callback($type,$query,$limit=null,$offset=null,$user="admin",$request=null, $report=""){
         $user=$this->session->userdata('user_type');
+        $type=$this->session->userdata('type');
+        $query=$this->session->userdata('query');
         $this->db->select('cb.*,p.name as project_name,ls.name as lead_source_name,concat(u.first_name," ",u.last_name) as user_name,b.name as broker_name,s.name as status_name');
         if($type){
             switch ($type) {
                 case 'name':
                     $this->db->where("cb.name LIKE '%".$query."%'", NULL, FALSE);
-
+                   
                     break;
 
                 case 'contact':
@@ -286,7 +288,9 @@ class Callback_model extends MY_Model {
                     break;
                 
             }
+
         }
+
         else{
 
             if($request != "report"){
@@ -310,9 +314,11 @@ class Callback_model extends MY_Model {
              // echo $id->id;
               $ids[]=$id->id;
           }
+          
         $list_id=implode(',', $ids);
         //$this->db->where("u.city_id", $this->session->userdata('city_id'));
          $this->db->where("(cb.user_id in(".$list_id."))", NULL, FALSE);
+         
        
         }
         
@@ -444,6 +450,8 @@ class Callback_model extends MY_Model {
             ->count_all_results('dar');
     }
 
+   
+
     function fetch_callback_count($user_id=null,$period='all',$where="",$closeordead=false){
         // $this->db->where("cb.active = 1 ", NULL, FALSE);
         if($user_id)
@@ -474,6 +482,7 @@ class Callback_model extends MY_Model {
         return $this->db->count_all_results();
     }
 
+
     function get_overdue_lead_count(){
         $this->db->where("cb.active = 1 ", NULL, FALSE);
         $this->db->where("cb.status_id != 4 ", NULL, FALSE);
@@ -483,7 +492,7 @@ class Callback_model extends MY_Model {
 
         return $this->db->count_all_results();
     }
-
+   
     function fetch_yesterday_callback_count($user_id){
         $this->db->distinct();
         $this->db->select('cbd.callback_id');
@@ -579,6 +588,7 @@ class Callback_model extends MY_Model {
         }
         return $result;
     }
+    
 
     function fetch_total_revenue($user_id,$team=null){
         $this->db->select("SUM(r.net_revenue) as total_revenue");
@@ -1046,6 +1056,17 @@ class Callback_model extends MY_Model {
         $q = $this->db->get();
         return $q->result_array();
     }
+    function get_siteVisitDataByUserIdIn($userid){
+        $this->db->select('cb.id, cb.name, ced.date visitDate, ced.project_id, p.name projectName');
+        $this->db->where(['cb.user_id'=>'in ('.$userid.')', 'ced.flag'=>1, 'ced.type'=>1]);
+        $this->db->from('callback as cb');  
+        $this->db->join('callback_extra_data as ced','cb.id=ced.callback_id');       
+        $this->db->join('project as p','p.id=ced.project_id'); 
+        $q = $this->db->get();
+        print_r($userid);
+        exit();
+        return $q->result_array();
+    }
     function get_leadsource_name($id)
     {
         $this->db->select('*');
@@ -1061,5 +1082,19 @@ class Callback_model extends MY_Model {
         $this->db->where('id',$id);
         $q = $this->db->get();        
         return $q->row_array();
+    }
+    function get_callbacks_assigned_today($id)
+    {
+
+        $this->db->select('count(*) as count');
+        //$this->db->like('due_date',date('Y-m-d',strtotime("-1 days")), 'before');
+        $this->db->from('callback');
+        $this->db->where('date_added>=',date('Y-m-d').' 00:00:00');
+        $this->db->where('date_added<=',date('Y-m-d').' 23:59:59');
+        $this->db->where('user_id',$id);
+        $q = $this->db->get(); 
+          
+        return $q->row_array();
+
     }
 }

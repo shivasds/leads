@@ -25,11 +25,12 @@ if(!$this->session->userdata('permissions') && $this->session->userdata('permiss
 else 
 {
     ?>
-    <?php if ($this->session->userdata('user_type')=="user") { ?>
+    <?php if ($this->session->userdata('user_type')=="user") { 
+        ?>
         <div class="container"> 
             <div class="col-md-8">
                 <div class="row top-mg dash-wd">
-                    <div class="col-md-3 ctr">
+                    <div class="col-md-2 ctr">
                         <h2>Todays Calls</h2>
                         <div class="panel panel-default" style="width:100%">
                             <div class="panel-body" >
@@ -37,7 +38,7 @@ else
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 ctr">
+                    <div class="col-md-2 ctr">
                         <h2>Yesterday calls</h2>
                         <div class="panel panel-default" style="width:100%">
                             <div class="panel-body" >
@@ -45,7 +46,7 @@ else
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 ctr">
+                    <div class="col-md-2 ctr">
                         <h2>Overdue calls</h2>
                         <div class="panel panel-default" style="width:100%">
                             <div class="panel-body" >
@@ -58,6 +59,14 @@ else
                         <div class="panel panel-default" style="width:100%">
                             <div class="panel-body" >
                                 <?php echo $callsDone['totalCalls'] ? $callsDone['totalCalls'] : 0; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 ctr">
+                        <h2>Calls Assigned Today</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <?php echo $calls_assigned_today['count'] ? $calls_assigned_today['count'] : 0; ?>
                             </div>
                         </div>
                     </div>
@@ -242,7 +251,7 @@ else
                 </div>
             </div>
         </div>
-    <?php } elseif ($this->session->userdata('user_type')=="manager" || $this->session->userdata('user_type')=="City head" ) { 
+    <?php } elseif ($this->session->userdata('user_type')=="manager"  ) { 
 
         ?>
         <div class="container"> 
@@ -252,105 +261,342 @@ else
                         <h2>Productivity</h2>
                         <div class="col-md-12 ctr">
                             <ul class="nav nav-tabs">
-		                        <li class="active"><a data-toggle="tab" href="#menu1">Important Calls</a></li>
-		                        <li><a data-toggle="tab" href="#menu2">Site Visit Fixed</a></li>
-		                        <!-- <li><a data-toggle="tab" href="#menu3">Menu 2</a></li> -->
-		                    </ul>
+                                <li class="active"><a data-toggle="tab" href="#menu1">Important Calls</a></li>
+                                <li><a data-toggle="tab" href="#menu2">Site Visit Fixed</a></li>
+                                <!-- <li><a data-toggle="tab" href="#menu3">Menu 2</a></li> -->
+                            </ul>
 
-		                    <div class="tab-content">
-		                        <div id="menu1" class="tab-pane fade in active">
-		                            <table class="table" style="margin-top: 30px;">
-		                                <thead>
-		                                    <tr>
-		                                        <th>Contact Name</th>
-		                                        <th>Assigned User</th>
-		                                        <th>Email</th>
-		                                        <th>Last added Note</th>
-		                                    </tr>
-		                                </thead>
-		                                <tbody>
-		                                    <?php foreach ($imp_callbacks as $callback) { ?>
-		                                        <tr>
-		                                            <td><a href="<?php echo base_url().'dashboard/view_callbacks/'.$user_id; ?>" data-type="user_important" data-id="<?php echo $callback->id; ?>"><?php echo $callback->name; ?></a></td>
-		                                            <td><?php echo $callback->user_name; ?></td>
-		                                            <td>
-		                                                <?php 
-		                                                    echo $callback->email1; 
-		                                                    if($callback->email2)
-		                                                        echo ", ".$callback->email2;
-		                                                ?>
-		                                            </td>
-		                                            <td><?php echo $callback->last_note; ?></td>
-		                                        </tr>
-		                                    <?php } ?>
-		                                        
-		                                </tbody>
-		                            </table>
-		                        </div>
-		                        <div id="menu2" class="tab-pane fade">
-		                            <?php if(count($site_visit_data)>0) { ?>
-		                            <a href="javascript:void(0);" class="btn btn-info pull-right emailSiteVisit" style="margin-top: 15px;">Email this</a>
-		                            <?php } ?><br/>
-		                            <table class="table">
-		                                <thead>
-		                                    <tr>
-		                                        <th>Contact Name</th>
-		                                        <th>Date of Site Visit</th>
-		                                        <th>Project Name</th>
-		                                        <!-- <th>Lastest Comment</th> -->
-		                                    </tr>
-		                                </thead>
-		                                <tbody>
-		                                    <?php  
-		                                    if(count($site_visit_data)>0) {                                   
-		                                        foreach ($site_visit_data as $k=>$data) { 
-		                                            if($data['id'] != $site_visit_data[$k+1]['id']) {
-		                                            ?>
-		                                            <tr>
-		                                                <td><?php echo $data['name']; ?></td>
-		                                                <td><?php echo $data['visitDate']; ?></td>
-		                                                <td>
-		                                                    <?php echo implode(', ', $site_visit_projects[$data['id']]);?>
-		                                                </td>
-		                                                <!-- <td><?php //echo $callback->last_note; ?></td> -->
-		                                            </tr>
-		                                            <?php 
-		                                            }   
-		                                                                                 
-		                                        }
-		                                    }
-		                                    else
-		                                        echo '<tr><td colspan="3">No records found!</td></tr>';
-		                                    ?>                                        
-		                                </tbody>
-		                            </table>
-		                        </div>
-		                        <div id="menu3" class="tab-pane fade">
-		                            <?php if(!empty($incentive_slabs)) { ?>
-		                                <h2>Incentive Slabs</h2>
-		                                <h3 style="font-size: 15px !important;">From: <?php echo $incentive_slabs[0]->from; ?></h3>
-		                                <h3 style="font-size: 15px !important;">To: <?php echo $incentive_slabs[0]->to; ?></h3>
-		                                <table class="table">
-		                                    <thead>
-		                                        <tr>
-		                                            <th>Amount</th>
-		                                            <th>Percentage</th>
-		                                        </tr>
-		                                    </thead>
-		                                    <tbody>
-		                                        <?php foreach ($incentive_slabs as $slab) { ?>
-		                                            <tr>
-		                                                <td><?php echo $slab->amount; ?></td>
-		                                                <td><?php echo $slab->percentage; ?></td>
-		                                            </tr>
-		                                        <?php } ?>
-		                                            
-		                                    </tbody>
-		                                </table>
-		                            <?php } ?>
-		                        </div>
-		                        
-		                    </div>
+                            <div class="tab-content">
+                                <div id="menu1" class="tab-pane fade in active">
+                                    <table class="table" style="margin-top: 30px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Contact Name</th>
+                                                <th>Assigned User</th>
+                                                <th>Email</th>
+                                                <th>Last added Note</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($imp_callbacks as $callback) { ?>
+                                                <tr>
+                                                    <td><a href="<?php echo base_url().'dashboard/view_callbacks/'.$user_id; ?>" data-type="user_important" data-id="<?php echo $callback->id; ?>"><?php echo $callback->name; ?></a></td>
+                                                    <td><?php echo $callback->user_name; ?></td>
+                                                    <td>
+                                                        <?php 
+                                                            echo $callback->email1; 
+                                                            if($callback->email2)
+                                                                echo ", ".$callback->email2;
+                                                        ?>
+                                                    </td>
+                                                    <td><?php echo $callback->last_note; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                                
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="menu2" class="tab-pane fade">
+                                    <?php if(count($site_visit_data)>0) { ?>
+                                    <a href="javascript:void(0);" class="btn btn-info pull-right emailSiteVisit" style="margin-top: 15px;">Email this</a>
+                                    <?php } ?><br/>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Contact Name</th>
+                                                <th>Date of Site Visit</th>
+                                                <th>Project Name</th>
+                                                <!-- <th>Lastest Comment</th> -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php  
+                                            if(count($site_visit_data)>0) {                                   
+                                                foreach ($site_visit_data as $k=>$data) { 
+                                                    if($data['id'] != $site_visit_data[$k+1]['id']) {
+                                                    ?>
+                                                    <tr>
+                                                        <td><?php echo $data['name']; ?></td>
+                                                        <td><?php echo $data['visitDate']; ?></td>
+                                                        <td>
+                                                            <?php echo implode(', ', $site_visit_projects[$data['id']]);?>
+                                                        </td>
+                                                        <!-- <td><?php //echo $callback->last_note; ?></td> -->
+                                                    </tr>
+                                                    <?php 
+                                                    }   
+                                                                                         
+                                                }
+                                            }
+                                            else
+                                                echo '<tr><td colspan="3">No records found!</td></tr>';
+                                            ?>                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="menu3" class="tab-pane fade">
+                                    <?php if(!empty($incentive_slabs)) { ?>
+                                        <h2>Incentive Slabs</h2>
+                                        <h3 style="font-size: 15px !important;">From: <?php echo $incentive_slabs[0]->from; ?></h3>
+                                        <h3 style="font-size: 15px !important;">To: <?php echo $incentive_slabs[0]->to; ?></h3>
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Amount</th>
+                                                    <th>Percentage</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($incentive_slabs as $slab) { ?>
+                                                    <tr>
+                                                        <td><?php echo $slab->amount; ?></td>
+                                                        <td><?php echo $slab->percentage; ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                                    
+                                            </tbody>
+                                        </table>
+                                    <?php } ?>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row top-mg dash-wd">
+                        <h2>Lead Source Report</h2>
+                        <div class="col-md-12 ctr">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Lead Source</th>
+                                        <th>Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($lead_source_report as $key => $value) { ?>
+                                        <tr>
+                                            <td><?php echo $this->common_model->get_leadsource_name($key); ?></td>
+                                            <td><?php echo $value; ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                        
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row top-mg dash-wd">
+                        <h2>Call Reports</h2>
+                        <div class="col-md-12 ctr">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>User Name</th>
+                                        <th>Number of calls</th>
+                                        <th>Calls done Yesterday</th>
+                                        <th>Calls for Today</th>
+                                        <th>Productivity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($call_reports as $key => $value) { ?>
+                                        <tr>
+                                            <td><?php echo $value->first_name." ".$value->last_name; ?></td>
+                                            <td><?php echo $value->total_calls; ?></td>
+                                            <td><?php echo $value->yesterday_callback_count; ?></td>
+                                            <td><?php echo $value->today_callback_count; ?></td>
+                                            <td><?php echo $value->productivity; ?> %</td>
+                                        </tr>
+                                    <?php } ?>
+                                        
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row top-mg dash-wd">
+                        <h2>Live Status</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">        
+                    <div class="col-md-12 ctr">
+                        <h2>Total Team Member</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <?php echo $total_team_members; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ctr">
+                        <h2>Total Calls for Team</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <a href="<?php echo base_url().'view_callbacks?advisor='.$team_members; ?>"><?php echo $total_calls; ?></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ctr">
+                        <h2>Own Calls</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <?php echo $total_callback_count; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ctr">
+                        <h2>Own Active Leads</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <a href="#" class="view_callbacks" data-type="manager_active"><?php echo $total_active_callback_count; ?></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ctr">
+                        <h2>Own Closed Calls</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <a href="#" class="view_callbacks" data-type="manager_close"><?php echo $close_leads_count; ?></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ctr">
+                        <h2>Own Call Revenue</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <?php echo $total_revenue?$total_revenue:0; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ctr">
+                        <h2>Team evenue</h2>
+                        <div class="panel panel-default" style="width:100%">
+                            <div class="panel-body" >
+                                <?php echo $total_team_revenue?$total_team_revenue:0; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php if($target) { ?>
+                        <div class="col-md-12 ctr">
+                            <h2>Target for the month</h2>
+                            <div class="panel panel-default" style="width:100%">
+                                <div class="panel-body" >
+                                    <?php echo $target; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+    <?php } elseif ($this->session->userdata('user_type')=="City_head"  ) { 
+
+        ?>
+        <div class="container"> 
+            <div class="top-mg dash-wd">
+                <div class="col-md-6">
+                    <div class="row top-mg dash-wd">
+                        <h2>Productivity</h2>
+                        <div class="col-md-12 ctr">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="#menu1">Important Calls</a></li>
+                                <li><a data-toggle="tab" href="#menu2">Site Visit Fixed</a></li>
+                                <!-- <li><a data-toggle="tab" href="#menu3">Menu 2</a></li> -->
+                            </ul>
+
+                            <div class="tab-content">
+                                <div id="menu1" class="tab-pane fade in active">
+                                    <table class="table" style="margin-top: 30px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Contact Name</th>
+                                                <th>Assigned User</th>
+                                                <th>Email</th>
+                                                <th>Last added Note</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($imp_callbacks as $callback) { ?>
+                                                <tr>
+                                                    <td><a href="<?php echo base_url().'dashboard/view_callbacks/'.$user_id; ?>" data-type="user_important" data-id="<?php echo $callback->id; ?>"><?php echo $callback->name; ?></a></td>
+                                                    <td><?php echo $callback->user_name; ?></td>
+                                                    <td>
+                                                        <?php 
+                                                            echo $callback->email1; 
+                                                            if($callback->email2)
+                                                                echo ", ".$callback->email2;
+                                                        ?>
+                                                    </td>
+                                                    <td><?php echo $callback->last_note; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                                
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="menu2" class="tab-pane fade">
+                                    <?php if(count($site_visit_data)>0) { ?>
+                                    <a href="javascript:void(0);" class="btn btn-info pull-right emailSiteVisit" style="margin-top: 15px;">Email this</a>
+                                    <?php } ?><br/>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Contact Name</th>
+                                                <th>Date of Site Visit</th>
+                                                <th>Project Name</th>
+                                                <!-- <th>Lastest Comment</th> -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php  
+                                            if(count($site_visit_data)>0) {                                   
+                                                foreach ($site_visit_data as $k=>$data) { 
+                                                    if($data['id'] != $site_visit_data[$k+1]['id']) {
+                                                    ?>
+                                                    <tr>
+                                                        <td><?php echo $data['name']; ?></td>
+                                                        <td><?php echo $data['visitDate']; ?></td>
+                                                        <td>
+                                                            <?php echo implode(', ', $site_visit_projects[$data['id']]);?>
+                                                        </td>
+                                                        <!-- <td><?php //echo $callback->last_note; ?></td> -->
+                                                    </tr>
+                                                    <?php 
+                                                    }   
+                                                                                         
+                                                }
+                                            }
+                                            else
+                                                echo '<tr><td colspan="3">No records found!</td></tr>';
+                                            ?>                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="menu3" class="tab-pane fade">
+                                    <?php if(!empty($incentive_slabs)) { ?>
+                                        <h2>Incentive Slabs</h2>
+                                        <h3 style="font-size: 15px !important;">From: <?php echo $incentive_slabs[0]->from; ?></h3>
+                                        <h3 style="font-size: 15px !important;">To: <?php echo $incentive_slabs[0]->to; ?></h3>
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Amount</th>
+                                                    <th>Percentage</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($incentive_slabs as $slab) { ?>
+                                                    <tr>
+                                                        <td><?php echo $slab->amount; ?></td>
+                                                        <td><?php echo $slab->percentage; ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                                    
+                                            </tbody>
+                                        </table>
+                                    <?php } ?>
+                                </div>
+                                
+                            </div>
                         </div>
                     </div>
                     <div class="row top-mg dash-wd">

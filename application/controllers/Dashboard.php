@@ -67,7 +67,7 @@ class Dashboard extends CI_Controller {
             $data['incentive_slabs'] = $this->callback_model->fetch_employee_incentive_slabs();
             $data['target'] = $this->callback_model->get_target($data['user_id'],date("m/Y"));
             $data['callsDone'] = $this->callback_model->callbackTrackCountByUserId($data['user_id']);
-           
+            $data['calls_assigned_today']=$this->callback_model->get_callbacks_assigned_today($data['user_id']);
             $fetchData = $this->callback_model->get_siteVisitDataByUserId($data['user_id']);
             
             $prArry = array();
@@ -113,29 +113,13 @@ class Dashboard extends CI_Controller {
             $this->session->set_userdata('city_id',$data['city_id']);
             $data['user_ids']=$this->user_model->get_city_user_ids($city_id[0]->city_id);
             $this->session->set_userdata('user_ids',$data['user_ids']);
-            $data['imp_callbacks'] = $this->callback_model->fetch_important_callbacks($data['user_id']);
-            $data['team_members'] = $this->user_model->get_team_members($data['user_id']);
-            $data['total_team_members'] = $this->user_model->get_team_members_count($data['user_id']); 
-            $data['total_calls'] = $this->callback_model->get_total_team_calls($data['user_id']);
-            $data['total_callback_count'] = $this->callback_model->fetch_callback_count($data['user_id']);
-            $data['total_active_callback_count'] = $this->callback_model->fetch_callback_count($data['user_id'],'all',"cb.status_id!=4 AND cb.status_id!=5");
-            $data['close_leads_count'] = $this->callback_model->fetch_leads_count($data['user_id'],'close');
-          
-            $data['lead_source_report'] = $this->callback_model->get_lead_source_report($data['user_id']);
-            $data['call_reports'] = $this->callback_model->get_call_reports($data['user_id']);
-            $data['incentive_slabs'] = $this->callback_model->fetch_employee_incentive_slabs();
-            $data['target'] = $this->callback_model->get_target($data['user_id'],date("m/Y"));
-            // echo $this->db->last_query();exit;
-
-            $fetchData = $this->callback_model->get_siteVisitDataByUserId($data['user_id']);            
-            $prArry = array();
-            $i = 1;
-            foreach ($fetchData as $key => $value) {
-                $prArry[$value['id']][$key] = $value['id'];
-                $prArry[$value['id']][$key] = $value['projectName'];
-            }
-            $data['site_visit_projects'] = $prArry;
-            $data['site_visit_data'] = $fetchData;
+             $data['productivity_report'] = $this->callback_model->get_call_reports();
+            $data['overdue_lead_count'] = $this->callback_model->get_overdue_lead_count();
+            $data['today_callback_count'] = $this->callback_model->fetch_callback_count(null,'today');
+            $data['total_callback_count'] = $this->callback_model->fetch_callback_count();
+            $data['lead_source_report'] = $this->callback_model->get_lead_source_report();
+            $data['live_feed_back'] = $this->user_model->get_live_feed_back();
+           
         }
         else{
             $data['productivity_report'] = $this->callback_model->get_call_reports();
